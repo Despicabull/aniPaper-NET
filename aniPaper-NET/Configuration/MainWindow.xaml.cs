@@ -1,6 +1,6 @@
 ﻿using System.Windows;
-using static aniPaper_NET.AppSettings;
-using static aniPaper_NET.WallpaperConfig;
+using static aniPaper_NET.Config;
+using static aniPaper_NET.Program;
 
 namespace aniPaper_NET.Configuration
 {
@@ -13,10 +13,13 @@ namespace aniPaper_NET.Configuration
         {
             InitializeComponent();
 
-            // Initialize
-            LoadConfig();
+            #region Initialization
+
             combo_box_wallpaper_style.SelectedIndex = (int)style;
             slider_volume.Value = volume;
+            checkbox_run_on_startup.IsChecked = run_on_startup;
+
+            #endregion
         }
 
         private void CloseConfig_Click(object sender, RoutedEventArgs e)
@@ -33,6 +36,7 @@ namespace aniPaper_NET.Configuration
         {
             style = (WallpaperStyle)combo_box_wallpaper_style.SelectedIndex;
             volume = (int)slider_volume.Value;
+            run_on_startup = (bool)checkbox_run_on_startup.IsChecked;
             SaveConfig();
             Close();
         }

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace aniPaper_NET.Helpers
 {
-    class Win32
+    static class Win32
     {
         public const int SPI_SETDESKWALLPAPER = 0x14;
         public const int SPIF_UPDATEINIFILE = 0x01;

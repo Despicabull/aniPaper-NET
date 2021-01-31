@@ -1,11 +1,10 @@
-﻿namespace aniPaper_NET
+﻿using static aniPaper_NET.WallpaperManager;
+
+namespace aniPaper_NET
 {
-    class AppSettings
+    static class Program
     {
-        private static readonly int max_browser_page = 500;
-        private static readonly int max_folder_page = 500;
         private static int current_browser_page = 1;
-        private static int current_folder_page = 1;
 
         public static Configuration.MainWindow _ConfigurationWindow;
         public static VLCPlayer.MainWindow _VLCPlayerWindow;
@@ -17,7 +16,7 @@
         }
 
         public static bool is_exit;
-        public static bool search_flag = false;
+        public static bool search_flag;
         public static int Current_Browser_Page
         {
             get
@@ -29,22 +28,11 @@
                 if (value < 1) value = 1;
                 else if (value > max_browser_page) value = max_browser_page;
                 current_browser_page = value;
+                LoadWallpaperFromUrl();
             }
         }
-        public static int Current_Folder_Page
-        {
-            get
-            {
-                return current_folder_page;
-            }
-            set
-            {
-                if (value < 1) value = 1;
-                else if (value > max_folder_page) value = max_folder_page;
-                current_folder_page = value;
-            }
-        }
+        public static readonly int max_browser_page = 500;
 
-        public static Navigation navigation = Navigation.Installed;
+        public static Navigation navigation;
     }
 }

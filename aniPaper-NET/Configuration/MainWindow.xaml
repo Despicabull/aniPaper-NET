@@ -16,7 +16,7 @@
     <DockPanel
         LastChildFill="False">
         <DockPanel
-            Width="180"
+            Width="160"
             Height="Auto"
             LastChildFill="False">
             <Label x:Name="label_wallpaper_style"
@@ -32,6 +32,12 @@
                 Height="30"
                 VerticalContentAlignment="Center">
             </Label>
+            <Label x:Name="label_run_on_startup"
+                Content="Run on Startup"
+                DockPanel.Dock="Top"
+                Height="30"
+                VerticalContentAlignment="Center">
+            </Label>
             <Button x:Name="btn_save_settings"
                     Content="Save"
                     Width="Auto"
@@ -42,7 +48,7 @@
             </Button>
         </DockPanel>
         <DockPanel
-            Width="180"
+            Width="160"
             Height="Auto"
             LastChildFill="False"
             DockPanel.Dock="Right">
@@ -72,12 +78,18 @@
             </ComboBox>
             <Slider x:Name="slider_volume"
                     Width="Auto"
-                    Height="30"
+                    Height="Auto"
                     DockPanel.Dock="Top"
                     FlowDirection="LeftToRight"
                     Minimum="0"
-                    Maximum="100">
-            </Slider>
+                    Maximum="100"
+                    Margin="0,6,0,6"/>
+            <CheckBox x:Name="checkbox_run_on_startup"
+                      Width="Auto"
+                      Height="Auto"
+                      DockPanel.Dock="Top"
+                      Margin="0,7.5,0,7.5">
+            </CheckBox>
             <Button x:Name="btn_close_settings"
                     Content="Close"
                     Width="Auto"

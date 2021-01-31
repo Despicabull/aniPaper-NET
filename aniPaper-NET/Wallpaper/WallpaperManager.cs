@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Win32;
+using NReco.VideoConverter;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,25 +11,25 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using static aniPaper_NET.AppSettings;
+using static aniPaper_NET.Config;
 using static aniPaper_NET.Helpers.Win32;
 using static aniPaper_NET.ImageProcessor;
+using static aniPaper_NET.Program;
 using static aniPaper_NET.Wallpaper;
-using static aniPaper_NET.WallpaperConfig;
 
 namespace aniPaper_NET
 {
-    class WallpaperManager
+    static partial class WallpaperManager
     {
-        public static readonly DirectoryInfo downloads_directory = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Downloads"));
-        public static readonly DirectoryInfo wallpapers_directory = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "Wallpapers"));
+        private static readonly string web_url = "http://www.wallpapermaiden.com";
+        private static readonly Regex illegal_characters = new Regex(string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidFileNameChars()))), RegexOptions.Compiled);
+
+        public static readonly DirectoryInfo downloads_directory = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "Downloads"));
+        public static readonly DirectoryInfo wallpapers_directory = new DirectoryInfo(Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "Wallpapers"));
 
         // A list where all installed and discovered wallpaper files are stored
         public static readonly ObservableCollection<Wallpaper> InstalledWallpapers = new ObservableCollection<Wallpaper>();
         public static readonly ObservableCollection<Wallpaper> DiscoveredWallpapers = new ObservableCollection<Wallpaper>();
-
-        private static readonly string web_url = "http://www.wallpapermaiden.com";
-        private static readonly Regex illegal_characters = new Regex(string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidFileNameChars()))), RegexOptions.Compiled);
 
         private static void ValidateFolder()
         {
@@ -38,9 +39,6 @@ namespace aniPaper_NET
             if (!downloads_directory.Exists) downloads_directory.Create();
         }
 
-        /// <summary>
-        /// TODO: Complete function fix bug {this}
-        /// </summary>
         public static void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
         {
             try
@@ -83,13 +81,27 @@ namespace aniPaper_NET
                     case WallpaperType.Video:
                         // Saves the wallpaper video and creating its thumbnail
                         File.Copy(file, wallpaper_video_file);
-
-                        wallpaper = new VideoWallpaper(wallpaper_title);
-
-                        Application.Current.Dispatcher.Invoke(delegate
+                        using (MemoryStream stream = new MemoryStream())
                         {
-                            InstalledWallpapers.Add(wallpaper);
-                        });
+                            FFMpegConverter ffmpeg = new FFMpegConverter();
+                            ffmpeg.GetVideoThumbnail(file, stream);
+                            wallpaper_image = Image.FromStream(stream);
+                            thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image, 270, 170);
+                            thumbnail_bitmap.Save(thumbnail_file);
+
+                            thumbnail_image = Image.FromFile(thumbnail_file);
+                            thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
+                            wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
+
+                            wallpaper_image.Dispose();
+                            thumbnail_image.Dispose();
+                            thumbnail_bitmap.Dispose();
+
+                            Application.Current.Dispatcher.Invoke(delegate
+                            {
+                                InstalledWallpapers.Add(wallpaper);
+                            });
+                        };
                         break;
                     default:
                         break;
@@ -120,44 +132,17 @@ namespace aniPaper_NET
             }
         }
 
-        public static void DownloadWallpaperFromUrl(Wallpaper wallpaper)
-        {
-            try
-            {
-                DirectoryInfo directory = downloads_directory.CreateSubdirectory(wallpaper.Title);
-
-                Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.Link),
-                            DownloadImageFromUrl(directory, wallpaper.Link.Replace("-thumb", "")))
-                            .ContinueWith(t =>
-                            {
-                                directory.MoveTo(wallpaper.GetDirectory());
-
-                                Application.Current.Dispatcher.Invoke(delegate
-                                {
-                                    InstalledWallpapers.Add(wallpaper);
-                                });
-                            });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <summary>
-        /// TODO: Complete function
-        /// </summary>
         public static void SetWallpaper(Wallpaper wallpaper)
         {
             try
             {
                 ValidateFolder();
 
-                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
-
                 switch (wallpaper.Type)
                 {
                     case (WallpaperType.Image):
+                        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+
                         switch (style)
                         {
                             case WallpaperStyle.Fill:
@@ -189,12 +174,13 @@ namespace aniPaper_NET
                         }
 
                         key.Dispose();
-                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetWallpaper(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                        last_wallpaper = string.Empty;
                         break;
                     case (WallpaperType.Video):
                         if (_VLCPlayerWindow == null)
                         {
-                            _VLCPlayerWindow = new VLCPlayer.MainWindow(new string[]{ wallpaper.GetWallpaper() })
+                            _VLCPlayerWindow = new VLCPlayer.MainWindow(new string[]{ wallpaper.GetFile() })
                             {
                                 Width = SystemParameters.VirtualScreenWidth,
                                 Height = SystemParameters.VirtualScreenHeight,
@@ -203,12 +189,15 @@ namespace aniPaper_NET
                         }
                         else
                         {
-                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetWallpaper() });
+                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
                         }
+                        last_wallpaper = wallpaper.Title;
                         break;
                     default:
                         break;
                 }
+
+                SaveConfig();
             }
             catch (Exception ex)
             {
@@ -216,51 +205,6 @@ namespace aniPaper_NET
             }
         }
 
-        private static async Task DownloadImageFromUrl(DirectoryInfo wallpaper_directory, string wallpaper_link)
-        {
-            try
-            {
-                ValidateFolder();
-
-                using (WebClient client = new WebClient())
-                {
-                    // Removes the -thumb value in the url to download the original image size
-                    string url = $"{web_url}{wallpaper_link}";
-                    string temp_file = Path.Combine(wallpaper_directory.FullName, "wallpaper-image");
-
-                    await client.DownloadFileTaskAsync(new Uri(url), temp_file);
-                };
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private static async Task DownloadThumbnailFromUrl(DirectoryInfo wallpaper_directory, string wallpaper_link)
-        {
-            try
-            {
-                ValidateFolder();
-
-                using (WebClient client = new WebClient())
-                {
-                    // Removes the -thumb value in the url to download the original image size
-                    string url = $"{web_url}{wallpaper_link}";
-                    string temp_file = Path.Combine(wallpaper_directory.FullName, "thumbnail");
-
-                    await client.DownloadFileTaskAsync(new Uri(url), temp_file);
-                };
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        /// <summary>
-        /// TODO: Complete function
-        /// </summary>
         public static async void LoadWallpaperFromFolder()
         {
             try
@@ -297,7 +241,11 @@ namespace aniPaper_NET
                         }
                         else if (File.Exists(wallpaper_video_file))
                         {
-                            wallpaper = new VideoWallpaper(wallpaper_title);
+                            Image thumbnail_image = Image.FromFile(thumbnail_file);
+                            BitmapImage thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
+                            wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
+
+                            thumbnail_image.Dispose();
 
                             Application.Current.Dispatcher.Invoke(delegate
                             {
@@ -313,9 +261,6 @@ namespace aniPaper_NET
             }
         }
 
-        /// <summary>
-        /// TODO: Complete function {this}
-        /// </summary>
         public static async void LoadWallpaperFromUrl()
         {
             try

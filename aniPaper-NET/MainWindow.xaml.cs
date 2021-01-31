@@ -3,7 +3,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using static aniPaper_NET.AppSettings;
+using static aniPaper_NET.Config;
+using static aniPaper_NET.Program;
 using static aniPaper_NET.Wallpaper;
 using static aniPaper_NET.WallpaperManager;
 
@@ -18,6 +19,16 @@ namespace aniPaper_NET
         {
             InitializeComponent();
 
+            #region Initialization
+
+            // Initializes the app settings to default
+            navigation = Navigation.Installed;
+            search_flag = false;
+
+            // Loads configuration
+            LoadConfig();
+            SetWallpaper(new VideoWallpaper(last_wallpaper));
+
             // Sets the list view items source
             list_view_wallpapers.ItemsSource = InstalledWallpapers;
 
@@ -26,9 +37,11 @@ namespace aniPaper_NET
             btn_download_wallpaper.IsEnabled = false;
             btn_set_wallpaper.IsEnabled = false;
 
-            // Loads wallpaper at the start of the application
+            // Loads the wallpaper
             LoadWallpaperFromFolder();
             LoadWallpaperFromUrl();
+
+            #endregion
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -85,9 +98,6 @@ namespace aniPaper_NET
             }
         }
 
-        /// <summary>
-        /// TODO: Fix bug
-        /// </summary>
         private void ListViewWallpapers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (list_view_wallpapers.SelectedIndex != -1)
@@ -156,13 +166,11 @@ namespace aniPaper_NET
         private void NextPage_Click(object sender, RoutedEventArgs e)
         {
             Current_Browser_Page++;
-            LoadWallpaperFromUrl();
         }
 
         private void PreviousPage_Click(object sender, RoutedEventArgs e)
         {
             Current_Browser_Page--;
-            LoadWallpaperFromUrl();
         }
 
         private void SetWallpaper_Click(object sender, RoutedEventArgs e)

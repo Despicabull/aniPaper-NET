@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using static aniPaper_NET.AppSettings;
+using static aniPaper_NET.Program;
 
 namespace aniPaper_NET
 {
@@ -8,35 +8,27 @@ namespace aniPaper_NET
     /// </summary>
     public partial class App : Application
     {
-        //private System.Windows.Forms.NotifyIcon notify_icon;
+        private System.Windows.Forms.NotifyIcon notify_icon;
 
-        protected override void OnStartup(StartupEventArgs e)
+        private void CloseWallpaper()
         {
-            base.OnStartup(e);
-
-            /*
-            notify_icon = new System.Windows.Forms.NotifyIcon();
-            notify_icon.DoubleClick += (s, args) => ManageWallpaper();
-            notify_icon.Icon = aniPaper_NET.Properties.Resources.AppIcon;
-            notify_icon.Visible = true;
-
-            CreateContextMenu();
-            */
+            if (_VLCPlayerWindow != null)
+            {
+                _VLCPlayerWindow.CloseWallpaper();
+            }
         }
 
         private void CreateContextMenu()
         {
-            /*
             notify_icon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             notify_icon.ContextMenuStrip.Items.Add("Manage Wallpaper").Click += (s, e) => ManageWallpaper();
+            notify_icon.ContextMenuStrip.Items.Add("Close Wallpaper").Click += (s, e) => CloseWallpaper();
             notify_icon.ContextMenuStrip.Items.Add("Play Wallpaper").Click += (s, e) => PlayWallpaper();
             notify_icon.ContextMenuStrip.Items.Add("Pause Wallpaper").Click += (s, e) => PauseWallpaper();
             notify_icon.ContextMenuStrip.Items.Add("-");
             notify_icon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) => ExitApplication();
-            */
         }
 
-        /*
         private void ExitApplication()
         {
             is_exit = true;
@@ -76,6 +68,18 @@ namespace aniPaper_NET
                 _VLCPlayerWindow.PlayMedia();
             }
         }
-        */
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+
+            notify_icon = new System.Windows.Forms.NotifyIcon();
+            notify_icon.DoubleClick += (s, args) => ManageWallpaper();
+            notify_icon.Icon = aniPaper_NET.Properties.Resources.AppIcon;
+            notify_icon.Visible = true;
+
+            CreateContextMenu();
+        }
     }
 }

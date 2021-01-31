@@ -12,8 +12,10 @@ namespace aniPaper_NET
             Video = 2,
         };
 
+        private readonly string Link;
+
+        // For data binding purposes
         public string Title { get; }
-        public string Link { get; }
         public WallpaperType Type { get; }
         public BitmapImage Thumbnail { get; }
 
@@ -37,14 +39,19 @@ namespace aniPaper_NET
             return Path.Combine(wallpapers_directory.FullName, Title);
         }
 
+        public virtual string GetFile()
+        {
+            return Path.Combine(GetDirectory(), "wallpaper");
+        }
+
         public string GetThumbnail()
         {
             return Path.Combine(GetDirectory(), "thumbnail");
         }
 
-        public virtual string GetWallpaper()
+        public string GetWallpaperLink()
         {
-            return Path.Combine(GetDirectory(), "wallpaper");
+            return Link;
         }
     }
 
@@ -53,7 +60,7 @@ namespace aniPaper_NET
         public ImageWallpaper(string Title, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Image) : base(Title, Type, Thumbnail) { }
         public ImageWallpaper(string Title, string Link, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Image) : base(Title, Link, Type, Thumbnail) { }
 
-        public override string GetWallpaper()
+        public override string GetFile()
         {
             return Path.Combine(GetDirectory(), "wallpaper-image");
         }
@@ -64,7 +71,7 @@ namespace aniPaper_NET
         public VideoWallpaper(string Title, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Video) : base(Title, Type, Thumbnail) { }
         public VideoWallpaper(string Title, string Link, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Video) : base(Title, Link, Type, Thumbnail) { }
 
-        public override string GetWallpaper()
+        public override string GetFile()
         {
             return Path.Combine(GetDirectory(), "wallpaper-video");
         }

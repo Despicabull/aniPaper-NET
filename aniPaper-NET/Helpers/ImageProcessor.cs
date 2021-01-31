@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace aniPaper_NET
 {
-    class ImageProcessor
+    static class ImageProcessor
     {
         public static Bitmap ConvertImageToBitmap(Image image, int target_width, int target_height)
         {

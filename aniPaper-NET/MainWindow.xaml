@@ -8,8 +8,8 @@
         Title="AniPaper"
         Width="1600"
         Height="900"
-        MinWidth="800"
-        MinHeight="450"
+        MinWidth="1024"
+        MinHeight="576"
         MaxWidth="1920"
         MaxHeight="1080"
         Closing="MainWindow_Closing">
@@ -143,14 +143,6 @@
                         DockPanel.Dock="Right"
                         Click="NextPage_Click">
                 </Button>
-                <Label x:Name="lab"
-                       Content="Label"
-                       Width="85"
-                       Height="Auto"
-                       DockPanel.Dock="Right"
-                       HorizontalContentAlignment="Center"
-                       VerticalContentAlignment="Center">
-                </Label>
                 <Button x:Name="btn_previous_page"
                         Content="Previous"
                         Width="85"
@@ -181,13 +173,23 @@
                             Width="270"
                             Height="170">
                             <TextBlock
+                                Text="{Binding Type}"
+                                Width="Auto"
+                                Height="Auto"
+                                TextTrimming="CharacterEllipsis"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                Foreground="WhiteSmoke"
+                                FontSize="14">
+                            </TextBlock>
+                            <TextBlock
                                 Text="{Binding Title}"
                                 Width="Auto"
                                 Height="Auto"
                                 TextTrimming="CharacterEllipsis"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
-                                Foreground="AntiqueWhite"
+                                Foreground="WhiteSmoke"
                                 FontSize="14">
                             </TextBlock>
                             <Image

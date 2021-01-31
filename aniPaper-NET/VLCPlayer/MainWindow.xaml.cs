@@ -1,11 +1,12 @@
 ﻿using LibVLCSharp.Shared;
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
-using static aniPaper_NET.AppSettings;
+using static aniPaper_NET.Config;
 using static aniPaper_NET.Helpers.Win32;
-using static aniPaper_NET.WallpaperConfig;
+using static aniPaper_NET.Program;
 
 namespace aniPaper_NET.VLCPlayer
 {
@@ -19,7 +20,7 @@ namespace aniPaper_NET.VLCPlayer
         private LibVLC lib_vlc;
         private Media media;
         private MediaPlayer media_player;
-        
+
         public MainWindow(string[] args)
         {
             InitializeComponent();
@@ -90,12 +91,56 @@ namespace aniPaper_NET.VLCPlayer
             SetWindowLongPtr(new HandleRef(null, window_handle), GWL_EXSTYLE, (IntPtr)style_new_window_extended);
         }
 
+        private void Media_player_EndReached(object sender, EventArgs e)
+        {
+            if (media_player == null) return;
+
+            // Loops the video played
+            ThreadPool.QueueUserWorkItem(t => media_player.Play(media));
+        }
+
+        private void VideoView_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Core.Initialize();
+
+                lib_vlc = new LibVLC("--no-disable-screensaver");
+                media_player = new MediaPlayer(lib_vlc)
+                {
+                    AspectRatio = "Fill",
+                    EnableHardwareDecoding = true,
+                    Volume = volume,
+                };
+                // Sets the media player to loop
+                media_player.EndReached += Media_player_EndReached;
+                video_view_wallpaper.MediaPlayer = media_player;
+
+                media = new Media(lib_vlc, file_path, FromType.FromPath);
+                media_player.Play(media);
+
+                media_ready = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         public void ChangeWallpaper(string[] args)
         {
             file_path = args[0];
 
             media = new Media(lib_vlc, file_path, FromType.FromPath);
             media_player.Play(media);
+        }
+
+        public void CloseWallpaper()
+        {
+            Application.Current.Dispatcher.Invoke(delegate
+            {
+                Close();
+            });
         }
 
         public void PausePlayer()
@@ -112,30 +157,9 @@ namespace aniPaper_NET.VLCPlayer
             if (!media_player.IsPlaying && media_ready) media_player.Play();
         }
 
-        private void VideoView_Loaded(object sender, RoutedEventArgs e)
+        public void SetVolume(int volume)
         {
-            try
-            {
-                Core.Initialize();
-
-                lib_vlc = new LibVLC("--no-disable-screensaver");
-                media_player = new MediaPlayer(lib_vlc)
-                {
-                    AspectRatio = "Fill",
-                    EnableHardwareDecoding = true,
-                    Volume = volume,
-                };
-                video_view_wallpaper.MediaPlayer = media_player;
-
-                media = new Media(lib_vlc, file_path, FromType.FromPath);
-                media_player.Play(media);
-
-                media_ready = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            media_player.Volume = volume;
         }
     }
 }
