@@ -4,7 +4,7 @@ namespace aniPaper_NET
 {
     static class Program
     {
-        private static int current_browser_page = 1;
+        private static int current_browser_page;
 
         public static Configuration.MainWindow _ConfigurationWindow;
         public static VLCPlayer.MainWindow _VLCPlayerWindow;
@@ -15,7 +15,6 @@ namespace aniPaper_NET
             Discover,
         }
 
-        public static bool is_exit;
         public static bool search_flag;
         public static int Current_Browser_Page
         {

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using static aniPaper_NET.Program;
 
 namespace aniPaper_NET
@@ -10,31 +11,19 @@ namespace aniPaper_NET
     {
         private System.Windows.Forms.NotifyIcon notify_icon;
 
-        private void CloseWallpaper()
-        {
-            if (_VLCPlayerWindow != null)
-            {
-                _VLCPlayerWindow.CloseWallpaper();
-            }
-        }
-
         private void CreateContextMenu()
         {
             notify_icon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             notify_icon.ContextMenuStrip.Items.Add("Manage Wallpaper").Click += (s, e) => ManageWallpaper();
-            notify_icon.ContextMenuStrip.Items.Add("Close Wallpaper").Click += (s, e) => CloseWallpaper();
-            notify_icon.ContextMenuStrip.Items.Add("Play Wallpaper").Click += (s, e) => PlayWallpaper();
-            notify_icon.ContextMenuStrip.Items.Add("Pause Wallpaper").Click += (s, e) => PauseWallpaper();
             notify_icon.ContextMenuStrip.Items.Add("-");
-            notify_icon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) => ExitApplication();
-        }
-
-        private void ExitApplication()
-        {
-            is_exit = true;
-            MainWindow.Close();
-            notify_icon.Dispose();
-            notify_icon = null;
+            notify_icon.ContextMenuStrip.Items.Add("Show / Hide Wallpaper").Click += (s, e) => ToggleWallpaperVisibility(); // Video only
+            notify_icon.ContextMenuStrip.Items.Add("Play Wallpaper").Click += (s, e) => PlayWallpaper(); // Video only
+            notify_icon.ContextMenuStrip.Items.Add("Pause Wallpaper").Click += (s, e) => PauseWallpaper(); // Video only
+            notify_icon.ContextMenuStrip.Items.Add("-");
+            notify_icon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) =>
+            {
+                Environment.Exit(0);
+            };
         }
 
         private void ManageWallpaper()
@@ -55,7 +44,7 @@ namespace aniPaper_NET
 
         private void PauseWallpaper()
         {
-            if (_VLCPlayerWindow != null)
+            if (_VLCPlayerWindow != null && _VLCPlayerWindow.IsVisible)
             {
                 _VLCPlayerWindow.PausePlayer();
             }
@@ -63,9 +52,23 @@ namespace aniPaper_NET
 
         private void PlayWallpaper()
         {
-            if (_VLCPlayerWindow != null)
+            if (_VLCPlayerWindow != null && _VLCPlayerWindow.IsVisible)
             {
                 _VLCPlayerWindow.PlayMedia();
+            }
+        }
+
+        private void ToggleWallpaperVisibility()
+        {
+            if (_VLCPlayerWindow != null && !_VLCPlayerWindow.IsVisible)
+            {
+                _VLCPlayerWindow.Show();
+                _VLCPlayerWindow.PlayMedia();
+            }
+            else if (_VLCPlayerWindow != null && _VLCPlayerWindow.IsVisible)
+            {
+                _VLCPlayerWindow.Hide();
+                _VLCPlayerWindow.PausePlayer();
             }
         }
 

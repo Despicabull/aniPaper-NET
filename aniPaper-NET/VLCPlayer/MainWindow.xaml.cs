@@ -112,8 +112,9 @@ namespace aniPaper_NET.VLCPlayer
                     EnableHardwareDecoding = true,
                     Volume = volume,
                 };
-                // Sets the media player to loop
+                // Adds event handler when media player has ended
                 media_player.EndReached += Media_player_EndReached;
+
                 video_view_wallpaper.MediaPlayer = media_player;
 
                 media = new Media(lib_vlc, file_path, FromType.FromPath);
@@ -133,14 +134,6 @@ namespace aniPaper_NET.VLCPlayer
 
             media = new Media(lib_vlc, file_path, FromType.FromPath);
             media_player.Play(media);
-        }
-
-        public void CloseWallpaper()
-        {
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                Close();
-            });
         }
 
         public void PausePlayer()

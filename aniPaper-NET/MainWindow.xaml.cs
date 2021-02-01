@@ -24,10 +24,13 @@ namespace aniPaper_NET
             // Initializes the app settings to default
             navigation = Navigation.Installed;
             search_flag = false;
+            Current_Browser_Page = 1;
 
             // Loads configuration
             LoadConfig();
-            SetWallpaper(new VideoWallpaper(last_wallpaper));
+
+            // Loads previous wallpaper (video only)
+            if (!string.IsNullOrEmpty(last_wallpaper)) SetWallpaper(new VideoWallpaper(last_wallpaper));
 
             // Sets the list view items source
             list_view_wallpapers.ItemsSource = InstalledWallpapers;
@@ -39,7 +42,6 @@ namespace aniPaper_NET
 
             // Loads the wallpaper
             LoadWallpaperFromFolder();
-            LoadWallpaperFromUrl();
 
             #endregion
         }
@@ -138,13 +140,11 @@ namespace aniPaper_NET
 
                 switch (list_view_navigation.SelectedIndex)
                 {
-                    // Installed
-                    case 0:
+                    case 0: // Installed
                         navigation = Navigation.Installed;
                         list_view_wallpapers.ItemsSource = InstalledWallpapers;
                         break;
-                    // Discover
-                    case 1:
+                    case 1: // Discover
                         navigation = Navigation.Discover;
                         list_view_wallpapers.ItemsSource = DiscoveredWallpapers;
                         break;
@@ -156,11 +156,8 @@ namespace aniPaper_NET
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (!is_exit)
-            {
-                Hide();
-                e.Cancel = true;
-            }
+            Hide();
+            e.Cancel = true;
         }
 
         private void NextPage_Click(object sender, RoutedEventArgs e)
@@ -212,8 +209,7 @@ namespace aniPaper_NET
                     ObservableCollection<Wallpaper> DisplayedWallpapers = new ObservableCollection<Wallpaper>();
                     switch (list_view_navigation.SelectedIndex)
                     {
-                        // Installed
-                        case 0:
+                        case 0: // Installed
                             foreach (Wallpaper wallpaper in InstalledWallpapers)
                             {
                                 string t = wallpaper.Title.Trim().ToLower();
@@ -223,8 +219,7 @@ namespace aniPaper_NET
                                 }
                             }
                             break;
-                        // Discover
-                        case 1:
+                        case 1: // Discover
                             foreach (Wallpaper wallpaper in DiscoveredWallpapers)
                             {
                                 string t = wallpaper.Title.Trim().ToLower();

@@ -44,6 +44,8 @@ namespace aniPaper_NET
             else ini_file.Write("Style", ((int)style).ToString(), "Image");
             if (ini_file.KeyExists("Volume", "Video")) volume = int.Parse(ini_file.Read("Volume", "Video"));
             else ini_file.Write("Volume", volume.ToString(), "Video");
+
+            SetStartup();
         }
 
         public static void SaveConfig()
