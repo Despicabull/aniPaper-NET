@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace aniPaper_NET.Helpers
+namespace aniPaper_NET
 {
     static class Win32
     {

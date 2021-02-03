@@ -20,10 +20,12 @@ namespace aniPaper_NET
             notify_icon.ContextMenuStrip.Items.Add("Play Wallpaper").Click += (s, e) => PlayWallpaper(); // Video only
             notify_icon.ContextMenuStrip.Items.Add("Pause Wallpaper").Click += (s, e) => PauseWallpaper(); // Video only
             notify_icon.ContextMenuStrip.Items.Add("-");
-            notify_icon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) =>
-            {
-                Environment.Exit(0);
-            };
+            notify_icon.ContextMenuStrip.Items.Add("Exit").Click += (s, e) => ExitApplication();
+        }
+
+        private void ExitApplication()
+        {
+            Environment.Exit(0);
         }
 
         private void ManageWallpaper()

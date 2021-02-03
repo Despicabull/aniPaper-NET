@@ -10,6 +10,8 @@ namespace aniPaper_NET
     {
         public static void DownloadWallpaperFromUrl(Wallpaper wallpaper)
         {
+            ValidateFolder();
+
             try
             {
                 DirectoryInfo directory = downloads_directory.CreateSubdirectory(wallpaper.Title);
@@ -36,8 +38,6 @@ namespace aniPaper_NET
         {
             try
             {
-                ValidateFolder();
-
                 using (WebClient client = new WebClient())
                 {
                     // Removes the -thumb value in the url to download the original image size
@@ -57,8 +57,6 @@ namespace aniPaper_NET
         {
             try
             {
-                ValidateFolder();
-
                 using (WebClient client = new WebClient())
                 {
                     // Removes the -thumb value in the url to download the original image size

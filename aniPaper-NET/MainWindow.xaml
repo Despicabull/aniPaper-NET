@@ -4,6 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:aniPaper_NET"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="14"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
         Title="AniPaper"
         Width="1600"
@@ -125,12 +133,10 @@
                          TextWrapping="NoWrap"
                          Width="300"
                          Height="Auto"
-                         FontSize="16"
                          DockPanel.Dock="Left"
                          Text="Search"
                          FontWeight="Normal"
                          CharacterCasing="Normal"
-                         Foreground="#FF9E9E9E"
                          HorizontalContentAlignment="Left"
                          TextChanged="TextBoxSearch_TextChanged"
                          GotKeyboardFocus="TextBoxSearch_GotKeyboardFocus"
@@ -143,6 +149,14 @@
                         DockPanel.Dock="Right"
                         Click="NextPage_Click">
                 </Button>
+                <Label x:Name="label_page"
+                       Content="Page"
+                       Width="85"
+                       Height="Auto"
+                       DockPanel.Dock="Right"
+                       VerticalContentAlignment="Center"
+                       HorizontalContentAlignment="Center">
+                </Label>
                 <Button x:Name="btn_previous_page"
                         Content="Previous"
                         Width="85"
@@ -157,8 +171,7 @@
                       DockPanel.Dock="Top"
                       SelectionChanged="ListViewWallpapers_SelectionChanged"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      SelectionMode="Single"
-                      Background="#FF2D2D30">
+                      SelectionMode="Single">
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel
@@ -179,8 +192,7 @@
                                 TextTrimming="CharacterEllipsis"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
-                                Foreground="WhiteSmoke"
-                                FontSize="14">
+                                FontWeight="Bold">
                             </TextBlock>
                             <TextBlock
                                 Text="{Binding Title}"
@@ -188,9 +200,7 @@
                                 Height="Auto"
                                 TextTrimming="CharacterEllipsis"
                                 HorizontalAlignment="Stretch"
-                                VerticalAlignment="Center"
-                                Foreground="WhiteSmoke"
-                                FontSize="14">
+                                VerticalAlignment="Center">
                             </TextBlock>
                             <Image
                                 Source="{Binding Thumbnail}"

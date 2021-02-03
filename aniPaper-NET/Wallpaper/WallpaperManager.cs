@@ -12,18 +12,18 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using static aniPaper_NET.Config;
-using static aniPaper_NET.Helpers.Win32;
 using static aniPaper_NET.ImageProcessor;
 using static aniPaper_NET.Program;
 using static aniPaper_NET.Wallpaper;
+using static aniPaper_NET.Win32;
 
 namespace aniPaper_NET
 {
     static partial class WallpaperManager
     {
-        private delegate void UpdateWallpaper(ObservableCollection<Wallpaper> wallpapers, Wallpaper wallpaper);
+        private delegate void WallpaperUpdater(ObservableCollection<Wallpaper> wallpapers, Wallpaper wallpaper);
 
-        private static UpdateWallpaper update_wallpaper;
+        private static WallpaperUpdater update_wallpaper;
 
         private static readonly string web_url = "http://www.wallpapermaiden.com";
         private static readonly Regex illegal_characters = new Regex(string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidFileNameChars()))), RegexOptions.Compiled);
@@ -55,97 +55,88 @@ namespace aniPaper_NET
 
         public static void SetWallpaper(Wallpaper wallpaper)
         {
-            try
+            ValidateFolder();
+
+            switch (wallpaper.Type)
             {
-                ValidateFolder();
+                case (WallpaperType.Image):
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
 
-                switch (wallpaper.Type)
-                {
-                    case (WallpaperType.Image):
-                        RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+                    switch (style)
+                    {
+                        case WallpaperStyle.Fill:
+                            key.SetValue(@"WallpaperStyle", 10.ToString());
+                            key.SetValue(@"TileWallpaper", 0.ToString());
+                            break;
+                        case WallpaperStyle.Fit:
+                            key.SetValue(@"WallpaperStyle", 6.ToString());
+                            key.SetValue(@"TileWallpaper", 0.ToString());
+                            break;
+                        case WallpaperStyle.Span: // Windows 8 or newer only
+                            key.SetValue(@"WallpaperStyle", 22.ToString());
+                            key.SetValue(@"TileWallpaper", 0.ToString());
+                            break;
+                        case WallpaperStyle.Stretch:
+                            key.SetValue(@"WallpaperStyle", 2.ToString());
+                            key.SetValue(@"TileWallpaper", 0.ToString());
+                            break;
+                        case WallpaperStyle.Tile:
+                            key.SetValue(@"WallpaperStyle", 0.ToString());
+                            key.SetValue(@"TileWallpaper", 1.ToString());
+                            break;
+                        case WallpaperStyle.Center:
+                            key.SetValue(@"WallpaperStyle", 0.ToString());
+                            key.SetValue(@"TileWallpaper", 0.ToString());
+                            break;
+                        default:
+                            break;
+                    }
 
-                        switch (style)
+                    key.Dispose();
+                    SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                    break;
+                case (WallpaperType.Video):
+                    if (_VLCPlayerWindow == null)
+                    {
+                        _VLCPlayerWindow = new VLCPlayer.MainWindow(new string[] { wallpaper.GetFile() })
                         {
-                            case WallpaperStyle.Fill:
-                                key.SetValue(@"WallpaperStyle", 10.ToString());
-                                key.SetValue(@"TileWallpaper", 0.ToString());
-                                break;
-                            case WallpaperStyle.Fit:
-                                key.SetValue(@"WallpaperStyle", 6.ToString());
-                                key.SetValue(@"TileWallpaper", 0.ToString());
-                                break;
-                            case WallpaperStyle.Span: // Windows 8 or newer only
-                                key.SetValue(@"WallpaperStyle", 22.ToString());
-                                key.SetValue(@"TileWallpaper", 0.ToString());
-                                break;
-                            case WallpaperStyle.Stretch:
-                                key.SetValue(@"WallpaperStyle", 2.ToString());
-                                key.SetValue(@"TileWallpaper", 0.ToString());
-                                break;
-                            case WallpaperStyle.Tile:
-                                key.SetValue(@"WallpaperStyle", 0.ToString());
-                                key.SetValue(@"TileWallpaper", 1.ToString());
-                                break;
-                            case WallpaperStyle.Center:
-                                key.SetValue(@"WallpaperStyle", 0.ToString());
-                                key.SetValue(@"TileWallpaper", 0.ToString());
-                                break;
-                            default:
-                                break;
-                        }
-
-                        key.Dispose();
-                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-                        last_wallpaper = string.Empty;
-                        break;
-                    case (WallpaperType.Video):
-                        if (_VLCPlayerWindow == null)
-                        {
-                            _VLCPlayerWindow = new VLCPlayer.MainWindow(new string[] { wallpaper.GetFile() })
-                            {
-                                Width = SystemParameters.VirtualScreenWidth,
-                                Height = SystemParameters.VirtualScreenHeight,
-                            };
-                            _VLCPlayerWindow.Show();
-                        }
-                        else
-                        {
-                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
-                        }
-                        last_wallpaper = wallpaper.Title;
-                        break;
-                    default:
-                        break;
-                }
-
-                SaveConfig();
+                            Width = SystemParameters.VirtualScreenWidth,
+                            Height = SystemParameters.VirtualScreenHeight,
+                        };
+                        _VLCPlayerWindow.Show();
+                    }
+                    else
+                    {
+                        _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
+                    }
+                    break;
+                default:
+                    break;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+
+            SaveConfig();
         }
 
         public static async void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
         {
-            try
+            ValidateFolder();
+
+            DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
+
+            string thumbnail_file = Path.Combine(directory.FullName, "thumbnail");
+            string wallpaper_image_file = Path.Combine(directory.FullName, "wallpaper-image");
+            string wallpaper_video_file = Path.Combine(directory.FullName, "wallpaper-video");
+
+            Image wallpaper_image, thumbnail_image;
+            Bitmap thumbnail_bitmap;
+            BitmapImage thumbnail_bitmap_image;
+            Wallpaper wallpaper;
+
+            update_wallpaper = AddWallpaper;
+
+            await Task.Run(() =>
             {
-                ValidateFolder();
-
-                DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
-
-                string thumbnail_file = Path.Combine(directory.FullName, "thumbnail");
-                string wallpaper_image_file = Path.Combine(directory.FullName, "wallpaper-image");
-                string wallpaper_video_file = Path.Combine(directory.FullName, "wallpaper-video");
-
-                Image wallpaper_image, thumbnail_image;
-                Bitmap thumbnail_bitmap;
-                BitmapImage thumbnail_bitmap_image;
-                Wallpaper wallpaper;
-
-                update_wallpaper = AddWallpaper;
-
-                await Task.Run(() =>
+                try
                 {
                     switch (wallpaper_type)
                     {
@@ -197,23 +188,23 @@ namespace aniPaper_NET
                         default:
                             break;
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            });
         }
 
         public static async void DeleteWallpaper(Wallpaper wallpaper)
         {
-            try
+            ValidateFolder();
+
+            update_wallpaper = RemoveWallpaper;
+
+            await Task.Run(() =>
             {
-                ValidateFolder();
-
-                update_wallpaper = RemoveWallpaper;
-
-                await Task.Run(() =>
+                try
                 {
                     Directory.Delete(wallpaper.GetDirectory(), true);
 
@@ -221,27 +212,27 @@ namespace aniPaper_NET
                     {
                         update_wallpaper(InstalledWallpapers, wallpaper);
                     });
-                });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            });
         }
 
         public static async void LoadWallpaperFromFolder()
         {
-            try
+            ValidateFolder();
+
+            InstalledWallpapers.Clear();
+
+            IEnumerable<DirectoryInfo> wallpaper_directories = wallpapers_directory.EnumerateDirectories();
+
+            update_wallpaper = AddWallpaper;
+
+            await Task.Run(() =>
             {
-                ValidateFolder();
-
-                InstalledWallpapers.Clear();
-
-                IEnumerable<DirectoryInfo> wallpaper_directories = wallpapers_directory.EnumerateDirectories();
-
-                update_wallpaper = AddWallpaper;
-
-                await Task.Run(() =>
+                try
                 {
                     foreach (DirectoryInfo directory in wallpaper_directories)
                     {
@@ -281,36 +272,39 @@ namespace aniPaper_NET
                             });
                         }
                     }
-                });
-            }
-            catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }).ContinueWith(t =>
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                is_searching = false;
+            });
         }
 
         public static async void LoadWallpaperFromUrl()
         {
-            try
+            ValidateFolder();
+
+            DiscoveredWallpapers.Clear();
+
+            string web_url_page = $"{web_url}/?page={Current_Browser_Page}";
+
+            HtmlDocument document = new HtmlDocument();
+
+            using (WebClient client = new WebClient())
             {
-                ValidateFolder();
+                string html_document = await client.DownloadStringTaskAsync(web_url_page);
+                document.LoadHtml(html_document);
+            }
+            HtmlNodeCollection nodes = document.DocumentNode.SelectNodes(string.Format("//div[@class='wallpaperBg']"));
 
-                DiscoveredWallpapers.Clear();
+            update_wallpaper = AddWallpaper;
 
-                string web_url_page = $"{web_url}/?page={Current_Browser_Page}";
-
-                HtmlDocument document = new HtmlDocument();
-
-                using (WebClient client = new WebClient())
-                {
-                    string html_document = await client.DownloadStringTaskAsync(web_url_page);
-                    document.LoadHtml(html_document);
-                }
-                HtmlNodeCollection nodes = document.DocumentNode.SelectNodes(string.Format("//div[@class='wallpaperBg']"));
-
-                update_wallpaper = AddWallpaper;
-
-                await Task.Run(() =>
+            await Task.Run(() =>
+            {
+                try
                 {
                     foreach (HtmlNode node in nodes)
                     {
@@ -321,15 +315,14 @@ namespace aniPaper_NET
                             // Gets the wallpaper title and removing illegal characters
                             string wallpaper_title = illegal_characters.Replace(link_node.Attributes["title"].Value, "");
                             string wallpaper_path = image_node.Attributes["src"].Value;
+                            Image thumbnail_image;
+                            BitmapImage thumbnail_bitmap_image;
+                            Wallpaper wallpaper;
 
                             WebRequest request = WebRequest.Create($"{web_url}{wallpaper_path}");
 
                             using (WebResponse response = request.GetResponse())
                             {
-                                Image thumbnail_image;
-                                BitmapImage thumbnail_bitmap_image;
-                                Wallpaper wallpaper;
-
                                 using (Stream stream = response.GetResponseStream())
                                 {
                                     thumbnail_image = Image.FromStream(stream);
@@ -346,12 +339,15 @@ namespace aniPaper_NET
                             };
                         }
                     }
-                });
-            }
-            catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }).ContinueWith(t =>
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+                is_searching = false;
+            });
         }
     }
 }

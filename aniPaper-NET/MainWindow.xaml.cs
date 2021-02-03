@@ -23,14 +23,12 @@ namespace aniPaper_NET
 
             // Initializes the app settings to default
             navigation = Navigation.Installed;
+            is_searching = false;
             search_flag = false;
             Current_Browser_Page = 1;
 
             // Loads configuration
             LoadConfig();
-
-            // Loads previous wallpaper (video only)
-            if (!string.IsNullOrEmpty(last_wallpaper)) SetWallpaper(new VideoWallpaper(last_wallpaper));
 
             // Sets the list view items source
             list_view_wallpapers.ItemsSource = InstalledWallpapers;
@@ -39,6 +37,13 @@ namespace aniPaper_NET
             btn_delete_wallpaper.IsEnabled = false;
             btn_download_wallpaper.IsEnabled = false;
             btn_set_wallpaper.IsEnabled = false;
+
+            // Disables the previous, and next button
+            btn_previous_page.IsEnabled = false;
+            btn_next_page.IsEnabled = false;
+
+            // Sets the current browser page
+            label_page.Content = $"{Current_Browser_Page} / {max_browser_page}";
 
             // Loads the wallpaper
             LoadWallpaperFromFolder();
@@ -141,10 +146,16 @@ namespace aniPaper_NET
                 switch (list_view_navigation.SelectedIndex)
                 {
                     case 0: // Installed
+                        btn_next_page.IsEnabled = false;
+                        btn_previous_page.IsEnabled = false;
+
                         navigation = Navigation.Installed;
                         list_view_wallpapers.ItemsSource = InstalledWallpapers;
                         break;
                     case 1: // Discover
+                        btn_next_page.IsEnabled = true;
+                        btn_previous_page.IsEnabled = true;
+
                         navigation = Navigation.Discover;
                         list_view_wallpapers.ItemsSource = DiscoveredWallpapers;
                         break;
@@ -162,12 +173,22 @@ namespace aniPaper_NET
 
         private void NextPage_Click(object sender, RoutedEventArgs e)
         {
-            Current_Browser_Page++;
+            if (!is_searching)
+            {
+                is_searching = true;
+                Current_Browser_Page++;
+                label_page.Content = $"{Current_Browser_Page} / {max_browser_page}";
+            }
         }
 
         private void PreviousPage_Click(object sender, RoutedEventArgs e)
         {
-            Current_Browser_Page--;
+            if (!is_searching)
+            {
+                is_searching = true;
+                Current_Browser_Page--;
+                label_page.Content = $"{Current_Browser_Page} / {max_browser_page}";
+            }
         }
 
         private void SetWallpaper_Click(object sender, RoutedEventArgs e)

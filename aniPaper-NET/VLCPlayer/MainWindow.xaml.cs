@@ -5,8 +5,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 using static aniPaper_NET.Config;
-using static aniPaper_NET.Helpers.Win32;
 using static aniPaper_NET.Program;
+using static aniPaper_NET.Win32;
 
 namespace aniPaper_NET.VLCPlayer
 {
