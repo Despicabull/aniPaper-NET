@@ -39,10 +39,7 @@ namespace aniPaper_NET
             return Path.Combine(wallpapers_directory.FullName, Title);
         }
 
-        public virtual string GetFile()
-        {
-            return Path.Combine(GetDirectory(), "wallpaper");
-        }
+        public abstract string GetFile();
 
         public string GetThumbnail()
         {

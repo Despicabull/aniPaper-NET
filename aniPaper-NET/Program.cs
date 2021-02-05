@@ -15,6 +15,7 @@ namespace aniPaper_NET
             Discover,
         }
 
+        public static bool is_downloading;
         public static bool is_searching;
         public static bool search_flag;
         public static int Current_Browser_Page

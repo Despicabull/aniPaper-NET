@@ -103,7 +103,6 @@
     <Compile Include="VLCPlayer\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Wallpaper\IWallpaper.cs" />
     <Compile Include="Wallpaper\Wallpaper.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Wallpaper\DownloadManager.cs" />

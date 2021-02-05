@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using static aniPaper_NET.Program;
 
 namespace aniPaper_NET
 {
@@ -14,19 +15,25 @@ namespace aniPaper_NET
 
             try
             {
-                DirectoryInfo directory = downloads_directory.CreateSubdirectory(wallpaper.Title);
+                if (!Directory.Exists(wallpaper.GetDirectory()))
+                {
+                    DirectoryInfo directory = downloads_directory.CreateSubdirectory(wallpaper.Title);
 
-                Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.GetWallpaperLink()),
-                            DownloadImageFromUrl(directory, wallpaper.GetWallpaperLink().Replace("-thumb", "")))
-                            .ContinueWith(t =>
-                            {
-                                directory.MoveTo(wallpaper.GetDirectory());
-
-                                Application.Current.Dispatcher.Invoke(delegate
+                    Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.GetWallpaperLink()),
+                                DownloadImageFromUrl(directory, wallpaper.GetWallpaperLink().Replace("-thumb", "")))
+                                .ContinueWith(t =>
                                 {
-                                    InstalledWallpapers.Add(wallpaper);
+                                    directory.MoveTo(wallpaper.GetDirectory());
+
+                                    Application.Current.Dispatcher.Invoke(delegate
+                                    {
+                                        InstalledWallpapers.Add(wallpaper);
+                                    });
+
+                                    is_downloading = false;
                                 });
-                            });
+                }
+                else throw new Exception("Specified wallpaper already exists in your library");
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NReco.VideoConverter;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -9,7 +10,10 @@ namespace aniPaper_NET
 {
     static class ImageProcessor
     {
-        public static Bitmap ConvertImageToBitmap(Image image, int target_width, int target_height)
+        public const int thumbnail_width = 270;
+        public const int thumbnail_height = 170;
+
+        public static Bitmap ConvertImageToBitmap(Image image, int target_width = thumbnail_width, int target_height = thumbnail_height)
         {
             float image_ratio = (float)image.Width / image.Height;
             float target_ratio = (float)target_width / target_height;
@@ -82,6 +86,18 @@ namespace aniPaper_NET
                 image.Dispose();
 
                 return bitmap_image;
+            };
+        }
+
+        public static Bitmap GetVideoThumbnail(string file)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                FFMpegConverter ffmpeg = new FFMpegConverter();
+                ffmpeg.GetVideoThumbnail(file, stream);
+                Image image = Image.FromStream(stream);
+
+                return ConvertImageToBitmap(image);
             };
         }
     }

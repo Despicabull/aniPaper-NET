@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Win32;
-using NReco.VideoConverter;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -120,60 +119,35 @@ namespace aniPaper_NET
         public static async void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
         {
             ValidateFolder();
-
-            DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
-
-            string thumbnail_file = Path.Combine(directory.FullName, "thumbnail");
-            string wallpaper_image_file = Path.Combine(directory.FullName, "wallpaper-image");
-            string wallpaper_video_file = Path.Combine(directory.FullName, "wallpaper-video");
-
-            Image wallpaper_image, thumbnail_image;
-            Bitmap thumbnail_bitmap;
-            BitmapImage thumbnail_bitmap_image;
-            Wallpaper wallpaper;
-
             update_wallpaper = AddWallpaper;
 
             await Task.Run(() =>
             {
                 try
                 {
-                    switch (wallpaper_type)
+                    if (!Directory.Exists(Path.Combine(wallpapers_directory.FullName, wallpaper_title)))
                     {
-                        case WallpaperType.Image:
-                            // Saves the wallpaper image and creating its thumbnail
-                            File.Copy(file, wallpaper_image_file);
-                            wallpaper_image = Image.FromFile(file);
-                            thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image, 270, 170);
-                            thumbnail_bitmap.Save(thumbnail_file);
+                        DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
 
-                            thumbnail_image = Image.FromFile(thumbnail_file);
-                            thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
-                            wallpaper = new ImageWallpaper(wallpaper_title, thumbnail_bitmap_image);
+                        Image thumbnail_image;
+                        Bitmap thumbnail_bitmap;
+                        BitmapImage thumbnail_bitmap_image;
+                        Wallpaper wallpaper;
 
-                            wallpaper_image.Dispose();
-                            thumbnail_image.Dispose();
-                            thumbnail_bitmap.Dispose();
+                        switch (wallpaper_type)
+                        {
+                            case WallpaperType.Image:
+                                // Placeholder wallpaper
+                                wallpaper = new ImageWallpaper(wallpaper_title);
+                                // Saves the wallpaper image and creating its thumbnail
+                                File.Copy(file, wallpaper.GetFile());
+                                Image wallpaper_image = Image.FromFile(file);
+                                thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image);
+                                thumbnail_bitmap.Save(wallpaper.GetThumbnail());
 
-                            Application.Current.Dispatcher.Invoke(delegate
-                            {
-                                update_wallpaper(InstalledWallpapers, wallpaper);
-                            });
-                            break;
-                        case WallpaperType.Video:
-                            // Saves the wallpaper video and creating its thumbnail
-                            File.Copy(file, wallpaper_video_file);
-                            using (MemoryStream stream = new MemoryStream())
-                            {
-                                FFMpegConverter ffmpeg = new FFMpegConverter();
-                                ffmpeg.GetVideoThumbnail(file, stream);
-                                wallpaper_image = Image.FromStream(stream);
-                                thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image, 270, 170);
-                                thumbnail_bitmap.Save(thumbnail_file);
-
-                                thumbnail_image = Image.FromFile(thumbnail_file);
+                                thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
                                 thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
-                                wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
+                                wallpaper = new ImageWallpaper(wallpaper_title, thumbnail_bitmap_image);
 
                                 wallpaper_image.Dispose();
                                 thumbnail_image.Dispose();
@@ -183,11 +157,32 @@ namespace aniPaper_NET
                                 {
                                     update_wallpaper(InstalledWallpapers, wallpaper);
                                 });
-                            };
-                            break;
-                        default:
-                            break;
+                                break;
+                            case WallpaperType.Video:
+                                // Placeholder wallpaper
+                                wallpaper = new VideoWallpaper(wallpaper_title);
+                                // Saves the wallpaper video and creating its thumbnail
+                                File.Copy(file, wallpaper.GetFile());
+                                thumbnail_bitmap = GetVideoThumbnail(file);
+                                thumbnail_bitmap.Save(wallpaper.GetThumbnail());
+
+                                thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
+                                thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
+                                wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
+
+                                thumbnail_image.Dispose();
+                                thumbnail_bitmap.Dispose();
+
+                                Application.Current.Dispatcher.Invoke(delegate
+                                {
+                                    update_wallpaper(InstalledWallpapers, wallpaper);
+                                });
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                    else throw new Exception("Specified wallpaper already exists in your library");
                 }
                 catch (Exception ex)
                 {
@@ -199,7 +194,6 @@ namespace aniPaper_NET
         public static async void DeleteWallpaper(Wallpaper wallpaper)
         {
             ValidateFolder();
-
             update_wallpaper = RemoveWallpaper;
 
             await Task.Run(() =>
@@ -223,12 +217,10 @@ namespace aniPaper_NET
         public static async void LoadWallpaperFromFolder()
         {
             ValidateFolder();
-
             InstalledWallpapers.Clear();
+            update_wallpaper = AddWallpaper;
 
             IEnumerable<DirectoryInfo> wallpaper_directories = wallpapers_directory.EnumerateDirectories();
-
-            update_wallpaper = AddWallpaper;
 
             await Task.Run(() =>
             {
@@ -286,21 +278,17 @@ namespace aniPaper_NET
         public static async void LoadWallpaperFromUrl()
         {
             ValidateFolder();
-
             DiscoveredWallpapers.Clear();
+            update_wallpaper = AddWallpaper;
 
             string web_url_page = $"{web_url}/?page={Current_Browser_Page}";
-
             HtmlDocument document = new HtmlDocument();
-
             using (WebClient client = new WebClient())
             {
                 string html_document = await client.DownloadStringTaskAsync(web_url_page);
                 document.LoadHtml(html_document);
             }
             HtmlNodeCollection nodes = document.DocumentNode.SelectNodes(string.Format("//div[@class='wallpaperBg']"));
-
-            update_wallpaper = AddWallpaper;
 
             await Task.Run(() =>
             {

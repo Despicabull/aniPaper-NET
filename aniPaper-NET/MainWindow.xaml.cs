@@ -23,6 +23,7 @@ namespace aniPaper_NET
 
             // Initializes the app settings to default
             navigation = Navigation.Installed;
+            is_downloading = false;
             is_searching = false;
             search_flag = false;
             Current_Browser_Page = 1;
@@ -101,7 +102,15 @@ namespace aniPaper_NET
         {
             if (list_view_wallpapers.SelectedIndex != -1)
             {
-                DownloadWallpaperFromUrl((Wallpaper)list_view_wallpapers.SelectedItem);
+                if (!is_downloading)
+                {
+                    is_downloading = true;
+                    DownloadWallpaperFromUrl((Wallpaper)list_view_wallpapers.SelectedItem);
+                }
+                else
+                {
+                    MessageBox.Show("Download is currently in progress", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
         }
 
@@ -179,6 +188,10 @@ namespace aniPaper_NET
                 Current_Browser_Page++;
                 label_page.Content = $"{Current_Browser_Page} / {max_browser_page}";
             }
+            else
+            {
+                MessageBox.Show("Searching is currently in progress", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         private void PreviousPage_Click(object sender, RoutedEventArgs e)
@@ -188,6 +201,10 @@ namespace aniPaper_NET
                 is_searching = true;
                 Current_Browser_Page--;
                 label_page.Content = $"{Current_Browser_Page} / {max_browser_page}";
+            }
+            else
+            {
+                MessageBox.Show("Searching is currently in progress", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
