@@ -21,10 +21,9 @@ namespace aniPaper_NET.VLCPlayer
         private Media media;
         private MediaPlayer media_player;
 
-        public MainWindow(string[] args)
+        public MainWindow()
         {
             InitializeComponent();
-            file_path = args[0];
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -116,11 +115,6 @@ namespace aniPaper_NET.VLCPlayer
                 media_player.EndReached += Media_player_EndReached;
 
                 video_view_wallpaper.MediaPlayer = media_player;
-
-                media = new Media(lib_vlc, file_path, FromType.FromPath);
-                media_player.Play(media);
-
-                media_ready = true;
             }
             catch (Exception ex)
             {
@@ -130,10 +124,16 @@ namespace aniPaper_NET.VLCPlayer
 
         public void ChangeWallpaper(string[] args)
         {
+            Dispatcher.Invoke(delegate
+            {
+                Show();
+            });
             file_path = args[0];
 
             media = new Media(lib_vlc, file_path, FromType.FromPath);
             media_player.Play(media);
+
+            media_ready = true;
         }
 
         public void PausePlayer()
@@ -153,6 +153,17 @@ namespace aniPaper_NET.VLCPlayer
         public void SetVolume(int volume)
         {
             media_player.Volume = volume;
+        }
+
+        public void StopPlayer()
+        {
+            Dispatcher.Invoke(delegate
+            {
+                Hide();
+            });
+            if (media_player == null) return;
+
+            if (media_ready) media_player.Stop();
         }
     }
 }

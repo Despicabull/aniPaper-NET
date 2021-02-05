@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
@@ -112,6 +113,11 @@ namespace aniPaper_NET
                     MessageBox.Show("Download is currently in progress", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
+        }
+
+        private void Exit_Click(object sendeer, RoutedEventArgs e)
+        {
+            Environment.Exit(0);
         }
 
         private void ListViewWallpapers_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

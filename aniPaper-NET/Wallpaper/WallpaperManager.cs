@@ -56,6 +56,9 @@ namespace aniPaper_NET
         {
             ValidateFolder();
 
+            // Stop the media player in VLCPlayerWindow
+            if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
+
             switch (wallpaper.Type)
             {
                 case (WallpaperType.Image):
@@ -97,12 +100,12 @@ namespace aniPaper_NET
                 case (WallpaperType.Video):
                     if (_VLCPlayerWindow == null)
                     {
-                        _VLCPlayerWindow = new VLCPlayer.MainWindow(new string[] { wallpaper.GetFile() })
+                        _VLCPlayerWindow = new VLCPlayer.MainWindow()
                         {
                             Width = SystemParameters.VirtualScreenWidth,
                             Height = SystemParameters.VirtualScreenHeight,
                         };
-                        _VLCPlayerWindow.Show();
+                        _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
                     }
                     else
                     {
@@ -196,6 +199,9 @@ namespace aniPaper_NET
             ValidateFolder();
             update_wallpaper = RemoveWallpaper;
 
+            // Stop the media player in VLCPlayerWindow
+            if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
+
             await Task.Run(() =>
             {
                 try
@@ -268,8 +274,10 @@ namespace aniPaper_NET
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    is_searching = false;
                 }
-            }).ContinueWith(t =>
+            }).ContinueWith(delegate
             {
                 is_searching = false;
             });
@@ -332,7 +340,7 @@ namespace aniPaper_NET
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-            }).ContinueWith(t =>
+            }).ContinueWith(delegate
             {
                 is_searching = false;
             });

@@ -21,7 +21,7 @@ namespace aniPaper_NET
 
                     Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.GetWallpaperLink()),
                                 DownloadImageFromUrl(directory, wallpaper.GetWallpaperLink().Replace("-thumb", "")))
-                                .ContinueWith(t =>
+                                .ContinueWith(delegate
                                 {
                                     directory.MoveTo(wallpaper.GetDirectory());
 
@@ -38,6 +38,8 @@ namespace aniPaper_NET
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                is_downloading = false;
             }
         }
 

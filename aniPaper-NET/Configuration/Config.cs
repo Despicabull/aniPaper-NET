@@ -17,7 +17,7 @@ namespace aniPaper_NET
             Span,
         }
 
-        public static bool run_on_startup = true;
+        public static bool run_on_startup = false;
         public static int volume = 50;
         public static WallpaperStyle style = WallpaperStyle.Fill;
 

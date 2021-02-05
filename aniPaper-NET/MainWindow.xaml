@@ -33,6 +33,10 @@
                 <MenuItem
                     Header="Browse"
                     Click="BrowseFile_Click"/>
+                <Separator/>
+                <MenuItem
+                    Header="Exit"
+                    Click="Exit_Click"/>
             </MenuItem>
             <MenuItem
                 Header="Help">
