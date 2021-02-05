@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,7 +12,6 @@ using System.Windows.Media.Imaging;
 using static aniPaper_NET.Config;
 using static aniPaper_NET.ImageProcessor;
 using static aniPaper_NET.Program;
-using static aniPaper_NET.Wallpaper;
 using static aniPaper_NET.Win32;
 
 namespace aniPaper_NET
@@ -62,39 +60,6 @@ namespace aniPaper_NET
             switch (wallpaper.Type)
             {
                 case (WallpaperType.Image):
-                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
-
-                    switch (style)
-                    {
-                        case WallpaperStyle.Fill:
-                            key.SetValue(@"WallpaperStyle", 10.ToString());
-                            key.SetValue(@"TileWallpaper", 0.ToString());
-                            break;
-                        case WallpaperStyle.Fit:
-                            key.SetValue(@"WallpaperStyle", 6.ToString());
-                            key.SetValue(@"TileWallpaper", 0.ToString());
-                            break;
-                        case WallpaperStyle.Span: // Windows 8 or newer only
-                            key.SetValue(@"WallpaperStyle", 22.ToString());
-                            key.SetValue(@"TileWallpaper", 0.ToString());
-                            break;
-                        case WallpaperStyle.Stretch:
-                            key.SetValue(@"WallpaperStyle", 2.ToString());
-                            key.SetValue(@"TileWallpaper", 0.ToString());
-                            break;
-                        case WallpaperStyle.Tile:
-                            key.SetValue(@"WallpaperStyle", 0.ToString());
-                            key.SetValue(@"TileWallpaper", 1.ToString());
-                            break;
-                        case WallpaperStyle.Center:
-                            key.SetValue(@"WallpaperStyle", 0.ToString());
-                            key.SetValue(@"TileWallpaper", 0.ToString());
-                            break;
-                        default:
-                            break;
-                    }
-
-                    key.Dispose();
                     SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
                     break;
                 case (WallpaperType.Video):

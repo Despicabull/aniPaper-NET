@@ -15,9 +15,9 @@ namespace aniPaper_NET.Configuration
 
             #region Initialization
 
-            combo_box_wallpaper_style.SelectedIndex = (int)style;
-            slider_volume.Value = volume;
-            checkbox_run_on_startup.IsChecked = run_on_startup;
+            combo_box_wallpaper_style.SelectedIndex = (int)WStyle;
+            slider_volume.Value = Volume;
+            checkbox_run_on_startup.IsChecked = Startup;
 
             #endregion
         }
@@ -34,9 +34,9 @@ namespace aniPaper_NET.Configuration
 
         private void SaveConfig_Click(object sender, RoutedEventArgs e)
         {
-            style = (WallpaperStyle)combo_box_wallpaper_style.SelectedIndex;
-            volume = (int)slider_volume.Value;
-            run_on_startup = (bool)checkbox_run_on_startup.IsChecked;
+            WStyle = (WallpaperStyle)combo_box_wallpaper_style.SelectedIndex;
+            Volume = (int)slider_volume.Value;
+            Startup = (bool)checkbox_run_on_startup.IsChecked;
             SaveConfig();
             Close();
         }

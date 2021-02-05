@@ -109,7 +109,7 @@ namespace aniPaper_NET.VLCPlayer
                 {
                     AspectRatio = "Fill",
                     EnableHardwareDecoding = true,
-                    Volume = volume,
+                    Volume = Volume,
                 };
                 // Adds event handler when media player has ended
                 media_player.EndReached += Media_player_EndReached;
@@ -152,7 +152,9 @@ namespace aniPaper_NET.VLCPlayer
 
         public void SetVolume(int volume)
         {
-            media_player.Volume = volume;
+            if (media_player == null) return;
+
+            if (media_ready) media_player.Volume = volume;
         }
 
         public void StopPlayer()

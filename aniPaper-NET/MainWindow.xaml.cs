@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Windows;
 using static aniPaper_NET.Config;
 using static aniPaper_NET.Program;
-using static aniPaper_NET.Wallpaper;
 using static aniPaper_NET.WallpaperManager;
 
 namespace aniPaper_NET
@@ -55,7 +54,7 @@ namespace aniPaper_NET
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(Assembly.GetEntryAssembly().GetName().Version.ToString(), "Version", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(Assembly.GetEntryAssembly().GetName().Version.ToString(), "Information", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BrowseFile_Click(object sender, RoutedEventArgs e)
@@ -63,7 +62,7 @@ namespace aniPaper_NET
             FileDialog file_dialog = new OpenFileDialog()
             {
                 DefaultExt = ".bmp",
-                Filter = "Images|*.bmp;*.jpeg;*.jpg;*.png|Videos|*.mp4;*.wmv;*.mov;*.avi",
+                Filter = "Images (*.bmp;*.jpeg;*.jpg;*.png)|*.bmp;*.jpeg;*.jpg;*.png|Videos(*.mp4;*.wmv;*.mov;*.avi)|*.mp4;*.wmv;*.mov;*.avi",
             };
             bool? dialog_ok = file_dialog.ShowDialog();
 

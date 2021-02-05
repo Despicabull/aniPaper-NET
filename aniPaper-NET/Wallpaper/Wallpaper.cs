@@ -4,14 +4,14 @@ using static aniPaper_NET.WallpaperManager;
 
 namespace aniPaper_NET
 {
+    public enum WallpaperType : int
+    {
+        Image = 1,
+        Video = 2,
+    };
+
     abstract class Wallpaper
     {
-        public enum WallpaperType : int
-        {
-            Image = 1,
-            Video = 2,
-        };
-
         private readonly string Link;
 
         // For data binding purposes
@@ -34,12 +34,12 @@ namespace aniPaper_NET
             this.Thumbnail = Thumbnail;
         }
 
+        public abstract string GetFile();
+
         public string GetDirectory()
         {
             return Path.Combine(wallpapers_directory.FullName, Title);
         }
-
-        public abstract string GetFile();
 
         public string GetThumbnail()
         {
