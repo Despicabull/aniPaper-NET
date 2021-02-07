@@ -19,8 +19,8 @@ namespace aniPaper_NET
                 {
                     DirectoryInfo directory = downloads_directory.CreateSubdirectory(wallpaper.Title);
 
-                    Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.GetWallpaperLink()),
-                                DownloadImageFromUrl(directory, wallpaper.GetWallpaperLink().Replace("-thumb", "")))
+                    Task.WhenAll(DownloadThumbnailFromUrl(directory, wallpaper.Link),
+                                DownloadImageFromUrl(directory, wallpaper.Link.Replace("-thumb", "")))
                                 .ContinueWith(delegate
                                 {
                                     directory.MoveTo(wallpaper.GetDirectory());

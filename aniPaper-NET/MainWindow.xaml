@@ -14,14 +14,12 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
         Title="AniPaper"
-        Width="1600"
-        Height="900"
+        Width="1024"
+        Height="576"
         MinWidth="1024"
         MinHeight="576"
-        MaxWidth="1920"
-        MaxHeight="1080"
         Closing="MainWindow_Closing">
-    <DockPanel 
+    <DockPanel
         Width="Auto"
         Height="Auto">
         <Menu

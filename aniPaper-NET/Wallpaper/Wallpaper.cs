@@ -12,26 +12,54 @@ namespace aniPaper_NET
 
     abstract class Wallpaper
     {
-        private readonly string Link;
+        private readonly string title;
+        private readonly string link;
+        private readonly WallpaperType type;
+        private readonly BitmapImage thumbnail;
 
         // For data binding purposes
-        public string Title { get; }
-        public WallpaperType Type { get; }
-        public BitmapImage Thumbnail { get; }
-
-        public Wallpaper(string Title, WallpaperType Type, BitmapImage Thumbnail = null)
+        public string Title
         {
-            this.Title = Title;
-            this.Type = Type;
-            this.Thumbnail = Thumbnail;
+            get
+            {
+                return title;
+            }
+        }
+        public string Link
+        {
+            get
+            {
+                return link;
+            }
+        }
+        public WallpaperType Type
+        {
+            get
+            {
+                return type;
+            }
+        }
+        public BitmapImage Thumbnail
+        {
+            get
+            {
+                return thumbnail;
+            }
         }
 
-        public Wallpaper(string Title, string Link, WallpaperType Type, BitmapImage Thumbnail = null)
+        public Wallpaper(string title, WallpaperType type, BitmapImage thumbnail = null)
         {
-            this.Title = Title;
-            this.Link = Link;
-            this.Type = Type;
-            this.Thumbnail = Thumbnail;
+            this.title = title;
+            this.type = type;
+            this.thumbnail = thumbnail;
+        }
+
+        public Wallpaper(string title, string link, WallpaperType type, BitmapImage thumbnail = null)
+        {
+            this.title = title;
+            this.link = link;
+            this.type = type;
+            this.thumbnail = thumbnail;
         }
 
         public abstract string GetFile();
@@ -45,17 +73,12 @@ namespace aniPaper_NET
         {
             return Path.Combine(GetDirectory(), "thumbnail");
         }
-
-        public string GetWallpaperLink()
-        {
-            return Link;
-        }
     }
 
     sealed class ImageWallpaper : Wallpaper
     {
-        public ImageWallpaper(string Title, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Image) : base(Title, Type, Thumbnail) { }
-        public ImageWallpaper(string Title, string Link, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Image) : base(Title, Link, Type, Thumbnail) { }
+        public ImageWallpaper(string title, BitmapImage thumbnail = null, WallpaperType type = WallpaperType.Image) : base(title, type, thumbnail) { }
+        public ImageWallpaper(string title, string link, BitmapImage thumbnail = null, WallpaperType type = WallpaperType.Image) : base(title, link, type, thumbnail) { }
 
         public override string GetFile()
         {
@@ -65,8 +88,8 @@ namespace aniPaper_NET
 
     sealed class VideoWallpaper : Wallpaper
     {
-        public VideoWallpaper(string Title, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Video) : base(Title, Type, Thumbnail) { }
-        public VideoWallpaper(string Title, string Link, BitmapImage Thumbnail = null, WallpaperType Type = WallpaperType.Video) : base(Title, Link, Type, Thumbnail) { }
+        public VideoWallpaper(string title, BitmapImage thumbnail = null, WallpaperType type = WallpaperType.Video) : base(title, type, thumbnail) { }
+        public VideoWallpaper(string title, string link, BitmapImage thumbnail = null, WallpaperType type = WallpaperType.Video) : base(title, link, type, thumbnail) { }
 
         public override string GetFile()
         {

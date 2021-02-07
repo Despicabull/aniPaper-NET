@@ -13,13 +13,11 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         mc:Ignorable="d"
+        WindowStyle="SingleBorderWindow"
         Title="Configuration"
+        ResizeMode="NoResize"
         Width="360"
         Height="360"
-        MinWidth="360"
-        MinHeight="360"
-        MaxWidth="360"
-        MaxHeight="360"
         Closing="MainWindow_Closing">
     <DockPanel
         LastChildFill="False">
@@ -64,7 +62,8 @@
                       Width="Auto"
                       Height="30"
                       DockPanel.Dock="Top"
-                      SelectedIndex="0">
+                      SelectedIndex="0"
+                      Margin="0,0,5,0">
                 <ComboBoxItem
                     Content="Fill">
                 </ComboBoxItem>
@@ -91,12 +90,12 @@
                     FlowDirection="LeftToRight"
                     Minimum="0"
                     Maximum="100"
-                    Margin="0,6,0,6"/>
+                    Margin="0,6,5,6"/>
             <CheckBox x:Name="checkbox_run_on_startup"
                       Width="Auto"
                       Height="Auto"
                       DockPanel.Dock="Top"
-                      Margin="0,7.5,0,7.5">
+                      Margin="0,7.5,5,7.5">
             </CheckBox>
             <Button x:Name="btn_close_settings"
                     Content="Close"
