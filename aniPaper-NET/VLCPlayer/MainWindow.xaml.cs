@@ -1,4 +1,5 @@
 ﻿using LibVLCSharp.Shared;
+using Microsoft.Win32;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,6 +25,8 @@ namespace aniPaper_NET.VLCPlayer
         public MainWindow()
         {
             InitializeComponent();
+
+            SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -105,6 +108,16 @@ namespace aniPaper_NET.VLCPlayer
 
             // Loops the video played
             ThreadPool.QueueUserWorkItem(t => media_player.Play(media));
+        }
+
+        private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        {
+            // Resets window position
+            Top = 0;
+            Left = 0;
+            // Resets window size
+            Width = SystemParameters.PrimaryScreenWidth;
+            Height = SystemParameters.PrimaryScreenHeight;
         }
 
         private void VideoView_Loaded(object sender, RoutedEventArgs e)

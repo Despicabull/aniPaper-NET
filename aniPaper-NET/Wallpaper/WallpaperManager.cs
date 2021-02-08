@@ -65,11 +65,7 @@ namespace aniPaper_NET
                 case (WallpaperType.Video):
                     if (_VLCPlayerWindow == null)
                     {
-                        _VLCPlayerWindow = new VLCPlayer.MainWindow()
-                        {
-                            Width = SystemParameters.PrimaryScreenWidth,
-                            Height = SystemParameters.PrimaryScreenHeight,
-                        };
+                        _VLCPlayerWindow = new VLCPlayer.MainWindow();
                         _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
                     }
                     else
