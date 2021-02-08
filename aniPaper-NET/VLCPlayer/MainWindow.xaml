@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:aniPaper_NET.VLCPlayer"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
