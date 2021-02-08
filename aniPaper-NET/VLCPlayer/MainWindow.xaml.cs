@@ -150,8 +150,8 @@ namespace aniPaper_NET.VLCPlayer
             {
                 Show();
             });
-            file_path = args[0];
 
+            file_path = args[0];
             media = new Media(lib_vlc, file_path, FromType.FromPath);
             media_player.Play(media);
 
@@ -185,6 +185,7 @@ namespace aniPaper_NET.VLCPlayer
             {
                 Hide();
             });
+
             if (media_player == null) return;
 
             if (media_ready) media_player.Stop();

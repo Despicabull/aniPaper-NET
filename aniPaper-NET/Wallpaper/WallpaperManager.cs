@@ -57,105 +57,109 @@ namespace aniPaper_NET
             // Stop the media player in VLCPlayerWindow
             if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
 
-            switch (wallpaper.Type)
+            try
             {
-                case (WallpaperType.Image):
-                    SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-                    break;
-                case (WallpaperType.Video):
-                    if (_VLCPlayerWindow == null)
-                    {
-                        _VLCPlayerWindow = new VLCPlayer.MainWindow();
-                        _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
-                    }
-                    else
-                    {
-                        _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
-                    }
-                    break;
-                default:
-                    break;
-            }
+                switch (wallpaper.Type)
+                {
+                    case (WallpaperType.Image):
+                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                        break;
+                    case (WallpaperType.Video):
+                        if (_VLCPlayerWindow == null)
+                        {
+                            _VLCPlayerWindow = new VLCPlayer.MainWindow();
+                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
+                        }
+                        else
+                        {
+                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
+                        }
+                        break;
+                    default:
+                        break;
+                }
 
-            SaveConfig();
+                SaveConfig();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        public static async void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
+        public static void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
         {
             ValidateFolder();
             update_wallpaper = AddWallpaper;
 
-            await Task.Run(() =>
+            try
             {
-                try
+                if (!Directory.Exists(Path.Combine(wallpapers_directory.FullName, wallpaper_title)))
                 {
-                    if (!Directory.Exists(Path.Combine(wallpapers_directory.FullName, wallpaper_title)))
+                    DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
+
+                    Image thumbnail_image;
+                    Bitmap thumbnail_bitmap;
+                    BitmapImage thumbnail_bitmap_image;
+                    Wallpaper wallpaper;
+
+                    switch (wallpaper_type)
                     {
-                        DirectoryInfo directory = wallpapers_directory.CreateSubdirectory(wallpaper_title);
+                        case WallpaperType.Image:
+                            // Placeholder wallpaper
+                            wallpaper = new ImageWallpaper(wallpaper_title);
+                            // Saves the wallpaper image and creating its thumbnail
+                            File.Copy(file, wallpaper.GetFile());
+                            Image wallpaper_image = Image.FromFile(file);
+                            thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image);
+                            thumbnail_bitmap.Save(wallpaper.GetThumbnail());
 
-                        Image thumbnail_image;
-                        Bitmap thumbnail_bitmap;
-                        BitmapImage thumbnail_bitmap_image;
-                        Wallpaper wallpaper;
+                            thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
+                            thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
+                            wallpaper = new ImageWallpaper(wallpaper_title, thumbnail_bitmap_image);
 
-                        switch (wallpaper_type)
-                        {
-                            case WallpaperType.Image:
-                                // Placeholder wallpaper
-                                wallpaper = new ImageWallpaper(wallpaper_title);
-                                // Saves the wallpaper image and creating its thumbnail
-                                File.Copy(file, wallpaper.GetFile());
-                                Image wallpaper_image = Image.FromFile(file);
-                                thumbnail_bitmap = ConvertImageToBitmap(wallpaper_image);
-                                thumbnail_bitmap.Save(wallpaper.GetThumbnail());
+                            wallpaper_image.Dispose();
+                            thumbnail_image.Dispose();
+                            thumbnail_bitmap.Dispose();
 
-                                thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
-                                thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
-                                wallpaper = new ImageWallpaper(wallpaper_title, thumbnail_bitmap_image);
+                            Application.Current.Dispatcher.Invoke(delegate
+                            {
+                                update_wallpaper(InstalledWallpapers, wallpaper);
+                            });
+                            break;
+                        case WallpaperType.Video:
+                            // Placeholder wallpaper
+                            wallpaper = new VideoWallpaper(wallpaper_title);
+                            // Saves the wallpaper video and creating its thumbnail
+                            File.Copy(file, wallpaper.GetFile());
+                            thumbnail_bitmap = GetVideoThumbnail(file);
+                            thumbnail_bitmap.Save(wallpaper.GetThumbnail());
 
-                                wallpaper_image.Dispose();
-                                thumbnail_image.Dispose();
-                                thumbnail_bitmap.Dispose();
+                            thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
+                            thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
+                            wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
 
-                                Application.Current.Dispatcher.Invoke(delegate
-                                {
-                                    update_wallpaper(InstalledWallpapers, wallpaper);
-                                });
-                                break;
-                            case WallpaperType.Video:
-                                // Placeholder wallpaper
-                                wallpaper = new VideoWallpaper(wallpaper_title);
-                                // Saves the wallpaper video and creating its thumbnail
-                                File.Copy(file, wallpaper.GetFile());
-                                thumbnail_bitmap = GetVideoThumbnail(file);
-                                thumbnail_bitmap.Save(wallpaper.GetThumbnail());
+                            thumbnail_image.Dispose();
+                            thumbnail_bitmap.Dispose();
 
-                                thumbnail_image = Image.FromFile(wallpaper.GetThumbnail());
-                                thumbnail_bitmap_image = ConvertImageToBitmapImage(thumbnail_image);
-                                wallpaper = new VideoWallpaper(wallpaper_title, thumbnail_bitmap_image);
-
-                                thumbnail_image.Dispose();
-                                thumbnail_bitmap.Dispose();
-
-                                Application.Current.Dispatcher.Invoke(delegate
-                                {
-                                    update_wallpaper(InstalledWallpapers, wallpaper);
-                                });
-                                break;
-                            default:
-                                break;
-                        }
+                            Application.Current.Dispatcher.Invoke(delegate
+                            {
+                                update_wallpaper(InstalledWallpapers, wallpaper);
+                            });
+                            break;
+                        default:
+                            break;
                     }
-                    else throw new Exception("Specified wallpaper already exists in your library");
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            });
+                else throw new Exception("Specified wallpaper already exists in your library");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        public static async void DeleteWallpaper(Wallpaper wallpaper)
+        public static void DeleteWallpaper(Wallpaper wallpaper)
         {
             ValidateFolder();
             update_wallpaper = RemoveWallpaper;
@@ -163,22 +167,19 @@ namespace aniPaper_NET
             // Stop the media player in VLCPlayerWindow
             if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
 
-            await Task.Run(() =>
+            try
             {
-                try
-                {
-                    Directory.Delete(wallpaper.GetDirectory(), true);
+                Directory.Delete(wallpaper.GetDirectory(), true);
 
-                    Application.Current.Dispatcher.Invoke(delegate
-                    {
-                        update_wallpaper(InstalledWallpapers, wallpaper);
-                    });
-                }
-                catch (Exception ex)
+                Application.Current.Dispatcher.Invoke(delegate
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            });
+                    update_wallpaper(InstalledWallpapers, wallpaper);
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public static async void LoadWallpaperFromFolder()

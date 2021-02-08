@@ -26,14 +26,14 @@
             Height="Auto"
             LastChildFill="False">
             <Label x:Name="label_wallpaper_style"
-                   Content="Wallpaper Style"
+                   Content="Wallpaper Style (Image)"
                    Width="Auto"
                    Height="30"
                    VerticalContentAlignment="Center"
                    DockPanel.Dock="Top">
             </Label>
             <Label x:Name="label_volume"
-                Content="Volume"
+                Content="Volume (Video)"
                 DockPanel.Dock="Top"
                 Height="30"
                 VerticalContentAlignment="Center">
