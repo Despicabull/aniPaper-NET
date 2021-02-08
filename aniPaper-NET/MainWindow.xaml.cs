@@ -62,7 +62,7 @@ namespace aniPaper_NET
             FileDialog file_dialog = new OpenFileDialog()
             {
                 DefaultExt = ".bmp",
-                Filter = "Images (*.bmp;*.jpeg;*.jpg;*.png)|*.bmp;*.jpeg;*.jpg;*.png|Videos(*.mp4;*.wmv;*.mov;*.avi)|*.mp4;*.wmv;*.mov;*.avi",
+                Filter = "Images (*.bmp;*.jpeg;*.jpg;*.png)|*.bmp;*.jpeg;*.jpg;*.png|Videos (*.mp4;*.wmv;*.mov;*.avi)|*.mp4;*.wmv;*.mov;*.avi",
             };
             bool? dialog_ok = file_dialog.ShowDialog();
 

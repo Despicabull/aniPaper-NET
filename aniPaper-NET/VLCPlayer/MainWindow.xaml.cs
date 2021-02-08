@@ -28,10 +28,19 @@ namespace aniPaper_NET.VLCPlayer
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            lib_vlc.Dispose();
-            media_player.Dispose();
-            media.Dispose();
-            _VLCPlayerWindow = null;
+            try
+            {
+                lib_vlc.Dispose();
+                media_ready = false;
+                media_player.EndReached -= Media_Player_EndReached;
+                media_player.Dispose();
+                media.Dispose();
+                _VLCPlayerWindow = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void MainWindow_Loaded(object sender, EventArgs e)
@@ -90,7 +99,7 @@ namespace aniPaper_NET.VLCPlayer
             SetWindowLongPtr(new HandleRef(null, window_handle), GWL_EXSTYLE, (IntPtr)style_new_window_extended);
         }
 
-        private void Media_player_EndReached(object sender, EventArgs e)
+        private void Media_Player_EndReached(object sender, EventArgs e)
         {
             if (media_player == null) return;
 
@@ -112,7 +121,7 @@ namespace aniPaper_NET.VLCPlayer
                     Volume = Volume,
                 };
                 // Adds event handler when media player has ended
-                media_player.EndReached += Media_player_EndReached;
+                media_player.EndReached += Media_Player_EndReached;
 
                 video_view_wallpaper.MediaPlayer = media_player;
             }

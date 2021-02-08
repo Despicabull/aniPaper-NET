@@ -67,8 +67,8 @@ namespace aniPaper_NET
                     {
                         _VLCPlayerWindow = new VLCPlayer.MainWindow()
                         {
-                            Width = SystemParameters.VirtualScreenWidth,
-                            Height = SystemParameters.VirtualScreenHeight,
+                            Width = SystemParameters.PrimaryScreenWidth,
+                            Height = SystemParameters.PrimaryScreenHeight,
                         };
                         _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
                     }
