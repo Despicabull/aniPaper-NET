@@ -13,6 +13,7 @@ namespace aniPaper_NET
         private const int thumbnail_width = 270;
         private const int thumbnail_height = 170;
 
+        // This also resizes the image to certain size
         public static Bitmap ConvertImageToBitmap(Image image, int target_width = thumbnail_width, int target_height = thumbnail_height)
         {
             float image_ratio = (float)image.Width / image.Height;
