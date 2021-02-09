@@ -1,4 +1,4 @@
-﻿using HtmlAgilityPack;
+﻿    using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -48,43 +48,6 @@ namespace aniPaper_NET
             if (!wallpapers_directory.Exists) wallpapers_directory.Create();
             // Creates a download directory
             if (!downloads_directory.Exists) downloads_directory.Create();
-        }
-
-        public static void SetWallpaper(Wallpaper wallpaper)
-        {
-            ValidateFolder();
-
-            // Stop the media player in VLCPlayerWindow
-            if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
-
-            try
-            {
-                switch (wallpaper.Type)
-                {
-                    case (WallpaperType.Image):
-                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-                        break;
-                    case (WallpaperType.Video):
-                        if (_VLCPlayerWindow == null)
-                        {
-                            _VLCPlayerWindow = new VLCPlayer.MainWindow();
-                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
-                        }
-                        else
-                        {
-                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                SaveConfig();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         public static void CreateWallpaperFolder(string file, string wallpaper_title, WallpaperType wallpaper_type)
@@ -175,6 +138,43 @@ namespace aniPaper_NET
                 {
                     update_wallpaper(InstalledWallpapers, wallpaper);
                 });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public static void SetWallpaper(Wallpaper wallpaper)
+        {
+            ValidateFolder();
+
+            // Stop the media player in VLCPlayerWindow
+            if (_VLCPlayerWindow != null) _VLCPlayerWindow.StopPlayer();
+
+            try
+            {
+                switch (wallpaper.Type)
+                {
+                    case (WallpaperType.Image):
+                        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaper.GetFile(), SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+                        break;
+                    case (WallpaperType.Video):
+                        if (_VLCPlayerWindow == null)
+                        {
+                            _VLCPlayerWindow = new VLCPlayer.MainWindow();
+                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
+                        }
+                        else
+                        {
+                            _VLCPlayerWindow.ChangeWallpaper(new string[] { wallpaper.GetFile() });
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                SaveConfig();
             }
             catch (Exception ex)
             {
