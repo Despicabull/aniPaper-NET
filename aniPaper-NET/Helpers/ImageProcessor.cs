@@ -10,8 +10,8 @@ namespace aniPaper_NET
 {
     static class ImageProcessor
     {
-        public const int thumbnail_width = 270;
-        public const int thumbnail_height = 170;
+        private const int thumbnail_width = 270;
+        private const int thumbnail_height = 170;
 
         public static Bitmap ConvertImageToBitmap(Image image, int target_width = thumbnail_width, int target_height = thumbnail_height)
         {
