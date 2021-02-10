@@ -2,7 +2,7 @@
 
 namespace aniPaper_NET
 {
-    static class Program
+    class Program
     {
         private static int current_browser_page = 1;
 

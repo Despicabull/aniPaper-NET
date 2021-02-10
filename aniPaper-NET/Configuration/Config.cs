@@ -6,7 +6,7 @@ using static aniPaper_NET.Program;
 
 namespace aniPaper_NET
 {
-    static class Config
+    class Config
     {
         public enum WallpaperStyle : int
         {

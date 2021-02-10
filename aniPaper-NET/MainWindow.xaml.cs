@@ -114,7 +114,7 @@ namespace aniPaper_NET
             }
         }
 
-        private void Exit_Click(object sendeer, RoutedEventArgs e)
+        private void Exit_Click(object sender, RoutedEventArgs e)
         {
             Environment.Exit(0);
         }
